@@ -1,0 +1,12 @@
+include: package:flutter_lints/flutter.yaml
+
+linter:
+  rules:
+    avoid_print: true
+    prefer_const_constructors: true
+    unnecessary_this: true
+    avoid_unnecessary_containers: true
+    always_use_package_imports: true
+    curly_braces_in_flow_control_structures: true
+    directives_ordering: true
+    unawaited_futures: true
