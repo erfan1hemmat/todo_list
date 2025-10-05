@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.todo_list"
+    namespace = "com.karatik.motlagh"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = "29.0.13113456"
 
@@ -21,7 +21,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.example.todo_list"
+        applicationId = "com.karatik.motlagh"
         minSdkVersion(23)        
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
