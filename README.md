@@ -1,16 +1,53 @@
-# todo_list
+# 📝 Todo List App
 
-A new Flutter project.
+A clean and modern Flutter **Todo List App** — one of the essential projects for every new mobile developer.  
+This app helps you manage your daily tasks efficiently with local storage, search, filters, and an elegant UI.
 
-## Getting Started
+---
 
-This project is a starting point for a Flutter application.
+## 🚀 Features
 
-A few resources to get you started if this is your first Flutter project:
+✨ **Add & Manage Tasks**
+- Create new tasks with:
+  - **Title**
+  - **Description**
+  - **Deadline**
+  - **Difficulty level** (`Easy`, `Medium`, `Hard`)
+- Tasks are stored locally using **Hive** — no internet connection required.
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+🔍 **Search & Filter**
+- Search tasks by **title** or **description**.
+- Filter tasks by **difficulty** level.
+- Tasks are automatically organized by their difficulty (Easy → Medium → Hard).
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+🗓️ **Smart Task Cards**
+- Each task card displays the number of **days remaining** until the deadline.
+- Tap on a task card to open a **bottom sheet** showing detailed information.
+- Swipe **right** to delete a task (with confirmation).
+- Mark a task as **completed** via the check button — confirmation included.
+
+🌙 **Dark & Light Mode**
+- The app supports both **dark** and **light** themes.
+- The theme automatically follows the system settings.
+
+🧭 **Navigation**
+- Two tabs in the **bottom navigation bar**:
+  1. **Home** – Active tasks list
+  2. **Completed** – Tasks you’ve finished (with the same details and swipe-to-delete feature)
+
+---
+
+## 🧱 Tech Stack
+
+- **Flutter** – UI framework  
+- **Dart** – Programming language  
+- **Hive** – Local database  
+- **Provider / State management** (if applicable)  
+
+---
+
+## 💡 How to Run
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/your-username/todo_list_app.git
