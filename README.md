@@ -1,53 +1,54 @@
 # 📝 Todo List App
 
-A clean and modern Flutter **Todo List App** — one of the essential projects for every new mobile developer.  
-This app helps you manage your daily tasks efficiently with local storage, search, filters, and an elegant UI.
+A clean, modern, and well-structured **Flutter Todo List App** — designed to help users manage their daily tasks efficiently.  
+This app is built using **Clean Architecture**, **Riverpod** for state management, and **Hive** for local storage.
 
 ---
 
 ## 🚀 Features
 
-✨ **Add & Manage Tasks**
-- Create new tasks with:
+✨ **Task Management**
+- Add new tasks with:
   - **Title**
   - **Description**
   - **Deadline**
   - **Difficulty level** (`Easy`, `Medium`, `Hard`)
-- Tasks are stored locally using **Hive** — no internet connection required.
+- All tasks are stored locally using **Hive** — works completely offline.
 
 🔍 **Search & Filter**
 - Search tasks by **title** or **description**.
-- Filter tasks by **difficulty** level.
-- Tasks are automatically organized by their difficulty (Easy → Medium → Hard).
+- Filter and sort tasks by **difficulty**.
+- Tasks are automatically grouped and displayed by difficulty (Easy → Medium → Hard).
 
-🗓️ **Smart Task Cards**
-- Each task card displays the number of **days remaining** until the deadline.
-- Tap on a task card to open a **bottom sheet** showing detailed information.
-- Swipe **right** to delete a task (with confirmation).
-- Mark a task as **completed** via the check button — confirmation included.
+✅ **Smart Interactions**
+- Each task card shows **days remaining** until its deadline.
+- Tap a card to open a **bottom sheet** for detailed task information.
+- Mark tasks as **completed** with a confirmation dialog.
+- Swipe **right** to delete a task (confirmation included).
 
-🌙 **Dark & Light Mode**
-- The app supports both **dark** and **light** themes.
-- The theme automatically follows the system settings.
+🌙 **Dark & Light Themes**
+- Supports both **Dark** and **Light** modes.
+- Automatically adapts to the system theme.
 
-🧭 **Navigation**
-- Two tabs in the **bottom navigation bar**:
-  1. **Home** – Active tasks list
-  2. **Completed** – Tasks you’ve finished (with the same details and swipe-to-delete feature)
+🧭 **Bottom Navigation**
+- Two main sections:
+  1. **Home** – Active tasks
+  2. **Completed** – Finished tasks (with the same interactions and bottom sheet details)
 
 ---
 
 ## 🧱 Tech Stack
 
-- **Flutter** – UI framework  
-- **Dart** – Programming language  
-- **Hive** – Local database  
-- **Provider / State management** (if applicable)  
+| Category | Technology |
+|-----------|-------------|
+| **Framework** | Flutter |
+| **Language** | Dart |
+| **State Management** | Riverpod |
+| **Local Database** | Hive |
+| **Architecture** | Clean Code / Clean Architecture |
+| **Data Models** | Dart Classes & Models for structured data handling |
 
 ---
 
-## 💡 How to Run
+## 🧩 Project Structure (Clean Architecture)
 
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/your-username/todo_list_app.git
