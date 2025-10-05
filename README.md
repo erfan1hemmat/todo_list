@@ -1,16 +1,54 @@
-# todo_list
+# 📝 Todo List App
 
-A new Flutter project.
+A clean, modern, and well-structured **Flutter Todo List App** — designed to help users manage their daily tasks efficiently.  
+This app is built using **Clean Architecture**, **Riverpod** for state management, and **Hive** for local storage.
 
-## Getting Started
+---
 
-This project is a starting point for a Flutter application.
+## 🚀 Features
 
-A few resources to get you started if this is your first Flutter project:
+✨ **Task Management**
+- Add new tasks with:
+  - **Title**
+  - **Description**
+  - **Deadline**
+  - **Difficulty level** (`Easy`, `Medium`, `Hard`)
+- All tasks are stored locally using **Hive** — works completely offline.
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+🔍 **Search & Filter**
+- Search tasks by **title** or **description**.
+- Filter and sort tasks by **difficulty**.
+- Tasks are automatically grouped and displayed by difficulty (Easy → Medium → Hard).
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+✅ **Smart Interactions**
+- Each task card shows **days remaining** until its deadline.
+- Tap a card to open a **bottom sheet** for detailed task information.
+- Mark tasks as **completed** with a confirmation dialog.
+- Swipe **right** to delete a task (confirmation included).
+
+🌙 **Dark & Light Themes**
+- Supports both **Dark** and **Light** modes.
+- Automatically adapts to the system theme.
+
+🧭 **Bottom Navigation**
+- Two main sections:
+  1. **Home** – Active tasks
+  2. **Completed** – Finished tasks (with the same interactions and bottom sheet details)
+
+---
+
+## 🧱 Tech Stack
+
+| Category | Technology |
+|-----------|-------------|
+| **Framework** | Flutter |
+| **Language** | Dart |
+| **State Management** | Riverpod |
+| **Local Database** | Hive |
+| **Architecture** | Clean Code / Clean Architecture |
+| **Data Models** | Dart Classes & Models for structured data handling |
+
+---
+
+## 🧩 Project Structure (Clean Architecture)
+
