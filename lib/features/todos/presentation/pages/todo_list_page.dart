@@ -7,7 +7,9 @@ import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 import 'package:todo_list/features/todos/domain/entities/todo.dart';
 import 'package:todo_list/features/todos/presentation/pages/add_todo_page.dart';
 import 'package:todo_list/features/todos/presentation/pages/done_todo_list_page.dart';
+import 'package:todo_list/features/todos/presentation/providers/settings_provider.dart';
 import 'package:todo_list/features/todos/presentation/providers/todo_notifier.dart';
+import 'package:todo_list/l10n/app_localizations.dart';
 
 class TodoListPage extends ConsumerStatefulWidget {
   const TodoListPage({super.key});
@@ -23,14 +25,15 @@ class _TodoListPageState extends ConsumerState<TodoListPage> {
 
   String _searchQuery = "";
 
-  String difficultyText(TodoDifficulty d) {
+  String difficultyText(TodoDifficulty d, BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
     switch (d) {
       case TodoDifficulty.easy:
-        return "Easy";
+        return loc.easy;
       case TodoDifficulty.medium:
-        return "Medium";
+        return loc.medium;
       case TodoDifficulty.hard:
-        return "Hard";
+        return loc.hard;
     }
   }
 
@@ -46,6 +49,7 @@ class _TodoListPageState extends ConsumerState<TodoListPage> {
   }
 
   void _showTodoDetails(BuildContext context, Todo todo) {
+    final loc = AppLocalizations.of(context)!;
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -59,13 +63,8 @@ class _TodoListPageState extends ConsumerState<TodoListPage> {
           builder: (context, scrollController) {
             return LayoutBuilder(
               builder: (context, constraints) {
-                final contentHeight = _calculateContentHeight(context, todo);
-                final sheetHeight =
-                    contentHeight / MediaQuery.of(context).size.height;
-                final finalHeight = sheetHeight.clamp(0.3, 0.85);
-
                 return SizedBox(
-                  height: finalHeight * MediaQuery.of(context).size.height,
+                  height: 400,
                   child: Container(
                     decoration: BoxDecoration(
                       color: Theme.of(context).scaffoldBackgroundColor,
@@ -97,6 +96,8 @@ class _TodoListPageState extends ConsumerState<TodoListPage> {
   }
 
   Widget _buildBottomSheetContent(BuildContext context, Todo todo) {
+    final loc = AppLocalizations.of(context)!;
+
     String formatDate(DateTime dt) =>
         "${dt.day.toString().padLeft(2, '0')}/${dt.month.toString().padLeft(2, '0')}/${dt.year}";
     String formatTime(DateTime dt) =>
@@ -131,7 +132,7 @@ class _TodoListPageState extends ConsumerState<TodoListPage> {
               ),
               Chip(
                 label: Text(
-                  difficultyText(todo.difficulty),
+                  difficultyText(todo.difficulty, context),
                   style: const TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.w600,
@@ -169,7 +170,7 @@ class _TodoListPageState extends ConsumerState<TodoListPage> {
           else
             Center(
               child: Text(
-                "No description",
+                loc.noDescription,
                 style: Theme.of(
                   context,
                 ).textTheme.bodyMedium?.copyWith(color: Colors.grey),
@@ -178,43 +179,38 @@ class _TodoListPageState extends ConsumerState<TodoListPage> {
           const SizedBox(height: 16),
           if (todo.dueDate != null)
             Column(
-              spacing: 8,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // تاریخ ایجاد - با آیکون متفاوت
                 Row(
                   children: [
                     Icon(
-                      Icons.create, // آیکون ایجاد
+                      Icons.create,
                       size: 20,
                       color: Theme.of(context).colorScheme.primary,
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      "CreatedAt : ${formatDate(todo.createdAt!)} ${formatTime(todo.createdAt!)}",
+                      "${loc.createdat} : ${formatDate(todo.createdAt!)} ${formatTime(todo.createdAt!)}",
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
                   ],
                 ),
-
-                // تاریخ سررسید - با آیکون متفاوت
                 Row(
                   children: [
                     Icon(
-                      Icons.event_available, // آیکون سررسید
+                      Icons.event_available,
                       size: 20,
                       color: Theme.of(context).colorScheme.primary,
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      "Due Date : ${formatDate(todo.dueDate!)} ${formatTime(todo.dueDate!)}",
+                      "${loc.dueDate} : ${formatDate(todo.dueDate!)} ${formatTime(todo.dueDate!)}",
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
                   ],
                 ),
               ],
             ),
-
           const SizedBox(height: 24),
           SizedBox(
             width: double.infinity,
@@ -228,7 +224,7 @@ class _TodoListPageState extends ConsumerState<TodoListPage> {
                 ),
                 padding: const EdgeInsets.symmetric(vertical: 16),
               ),
-              child: const Text("Close", style: TextStyle(fontSize: 16)),
+              child: Text(loc.close, style: const TextStyle(fontSize: 16)),
             ),
           ),
         ],
@@ -236,181 +232,18 @@ class _TodoListPageState extends ConsumerState<TodoListPage> {
     );
   }
 
-  Widget _buildProgressBar(Todo todo) {
-    final progress = _calculateProgress(todo);
-    return TweenAnimationBuilder<double>(
-      tween: Tween<double>(begin: 0, end: progress),
-      duration: const Duration(milliseconds: 800),
-      builder: (context, value, _) {
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  "Progress",
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.onSurface.withOpacity(0.7),
-                  ),
-                ),
-                Text(
-                  "${(value * 100).toStringAsFixed(0)}%",
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.onSurface.withOpacity(0.7),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 4),
-            SizedBox(
-              height: 8,
-              child: Stack(
-                children: [
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Colors.grey.shade300,
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              _getTimeRemainingText(todo),
-              style: TextStyle(
-                fontSize: 10,
-                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  // تابع جدید برای نمایش متن زمان باقی‌مانده
-  String _getTimeRemainingText(Todo todo) {
-    if (todo.dueDate == null) return "No due date";
-
-    final now = DateTime.now();
-    final dueDate = todo.dueDate!;
-
-    if (now.isAfter(dueDate)) {
-      return "Overdue!";
-    }
-
-    final difference = dueDate.difference(now);
-
-    if (difference.inDays > 0) {
-      return "${difference.inDays} days remaining";
-    } else if (difference.inHours > 0) {
-      return "${difference.inHours} hours remaining";
-    } else if (difference.inMinutes > 0) {
-      return "${difference.inMinutes} minutes remaining";
-    } else {
-      return "Less than a minute remaining";
-    }
-  }
-
-  Color _progressColor(double progress) {
-    if (progress < 0.01) return Colors.green;
-    if (progress < 0.25) return Colors.green;
-    if (progress < 0.5) return Colors.yellow;
-    if (progress < 0.75) return Colors.orange;
-    return Colors.red;
-  }
-
-  double _calculateProgress(Todo todo) {
-    final creationDate = todo.createdAt ?? DateTime.now();
-
-    if (todo.dueDate == null) {
-      return 0.0;
-    }
-
-    final now = DateTime.now();
-    final dueDate = todo.dueDate!;
-
-    if (dueDate.isBefore(creationDate)) {
-      return 1.0;
-    }
-
-    if (now.isAfter(dueDate)) {
-      return 1.0;
-    }
-
-    if (now.isBefore(creationDate)) {
-      return 0.0;
-    }
-
-    final totalDuration = dueDate.difference(creationDate).inSeconds;
-    final elapsedDuration = now.difference(creationDate).inSeconds;
-
-    if (totalDuration <= 0) {
-      return 0.0;
-    }
-
-    double progress = elapsedDuration / totalDuration;
-
-    return progress.clamp(0.0, 1.0);
-  }
-
-  double _calculateContentHeight(BuildContext context, Todo todo) {
-    double height = 16;
-    height += 24 + 16;
-    height += 16;
-    if (todo.description != null && todo.description!.isNotEmpty) {
-      height += 20 + (todo.description!.length / 2);
-    } else {
-      height += 40;
-    }
-    if (todo.dueDate != null) height += 40;
-    height += 24;
-    height += 56;
-    height += 16;
-    return height;
-  }
-
-  List<Widget> _buildScreens() {
-    return [_todoListScreen(), const DoneTodoListPage()];
-  }
-
-  List<PersistentBottomNavBarItem> _navBarsItems() {
-    final theme = Theme.of(context);
-    return [
-      PersistentBottomNavBarItem(
-        icon: const FaIcon(FontAwesomeIcons.house, size: 26),
-        title: "Home",
-        activeColorPrimary: theme.colorScheme.primary,
-        inactiveColorPrimary: theme.colorScheme.onSurface.withOpacity(0.6),
-      ),
-      PersistentBottomNavBarItem(
-        icon: const FaIcon(FontAwesomeIcons.check, size: 26),
-        title: "Completed",
-        activeColorPrimary: theme.colorScheme.primary,
-        inactiveColorPrimary: theme.colorScheme.onSurface.withOpacity(0.6),
-      ),
-    ];
-  }
-
-  // تابع جدید برای نمایش فقط روزهای باقی‌مانده
+  // مثال برای placeholder با تعداد روز
   Widget _buildDaysRemaining(Todo todo) {
+    final loc = AppLocalizations.of(context)!;
     if (todo.dueDate == null) return const SizedBox();
 
     final now = DateTime.now();
     final dueDate = todo.dueDate!;
 
     if (now.isAfter(dueDate)) {
-      return const Text(
-        "Overdue!",
-        style: TextStyle(
+      return Text(
+        loc.overdue,
+        style: const TextStyle(
           fontSize: 12,
           color: Colors.red,
           fontWeight: FontWeight.w500,
@@ -421,7 +254,7 @@ class _TodoListPageState extends ConsumerState<TodoListPage> {
     final difference = dueDate.difference(now);
 
     return Text(
-      "${difference.inDays} days left",
+      loc.daysRemaining(difference.inDays),
       style: TextStyle(
         fontSize: 12,
         color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
@@ -433,6 +266,7 @@ class _TodoListPageState extends ConsumerState<TodoListPage> {
   Widget _todoListScreen() {
     final todos = ref.watch(todoListProvider);
     final theme = Theme.of(context);
+    final loc = AppLocalizations.of(context)!;
 
     List<Todo> filteredTodos() {
       final activeTodos = todos.where((t) => !t.isDone).toList();
@@ -450,10 +284,126 @@ class _TodoListPageState extends ConsumerState<TodoListPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Tasks'),
-        elevation: 0, // حذف سایه از AppBar
-        scrolledUnderElevation: 0, // جلوگیری از نمایش سایه هنگام اسکرول
+        leading: Padding(
+          padding: const EdgeInsets.only(right: 12.0),
+          child: PopupMenuButton<Locale>(
+            icon: const Icon(FontAwesomeIcons.globe, size: 26),
+            tooltip: "",
+            onSelected: (locale) {
+              ref.read(localeProvider.notifier).toggleLocale();
+            },
+            itemBuilder: (context) => [
+              const PopupMenuItem(
+                value: Locale('en'),
+                child: Row(
+                  children: [
+                    Icon(FontAwesomeIcons.globe, size: 18),
+                    SizedBox(width: 8),
+                    Text('English'),
+                  ],
+                ),
+              ),
+              const PopupMenuItem(
+                value: Locale('fa'),
+                child: Row(
+                  children: [
+                    Icon(FontAwesomeIcons.globe, size: 18),
+                    SizedBox(width: 8),
+                    Text('فارسی'),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        title: Text(loc.tasks),
+        centerTitle: true,
+        actions: [
+          // Custom Switch برای تغییر تم
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12.0),
+            child: GestureDetector(
+              onTap: () {
+                ref.read(themeProvider.notifier).toggleTheme();
+                final isDark = ref.read(themeProvider) == ThemeMode.dark;
+                Get.snackbar(
+                  isDark ? loc.lightmode : loc.darkmode,
+                  "",
+                  snackPosition: SnackPosition.BOTTOM,
+                  backgroundColor: Colors.blueGrey.shade800,
+                  colorText: Colors.white,
+                  duration: const Duration(seconds: 2),
+                  margin: const EdgeInsets.all(12),
+                  borderRadius: 12,
+                );
+              },
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 350),
+                curve: Curves.easeInOut,
+                width: 70,
+                height: 36,
+                padding: const EdgeInsets.all(4),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20),
+                  color: ref.watch(themeProvider) == ThemeMode.dark
+                      ? Colors.grey.shade900
+                      : Colors.yellow.shade600,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.2),
+                      offset: const Offset(0, 4),
+                      blurRadius: 6,
+                    ),
+                  ],
+                ),
+                child: Stack(
+                  children: [
+                    // توپ سوییچ
+                    AnimatedPositioned(
+                      duration: const Duration(milliseconds: 350),
+                      curve: Curves.easeInOutBack,
+                      left: ref.watch(themeProvider) == ThemeMode.dark ? 34 : 0,
+                      right: ref.watch(themeProvider) == ThemeMode.dark
+                          ? 0
+                          : 34,
+                      child: Container(
+                        width: 28,
+                        height: 28,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.white,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.25),
+                              blurRadius: 4,
+                              offset: const Offset(0, 2),
+                            ),
+                            BoxShadow(
+                              color: Colors.white.withOpacity(0.6),
+                              blurRadius: 2,
+                              spreadRadius: 1,
+                            ),
+                          ],
+                        ),
+                        child: Icon(
+                          ref.watch(themeProvider) == ThemeMode.dark
+                              ? Icons.dark_mode
+                              : Icons.light_mode,
+                          size: 18,
+                          color: ref.watch(themeProvider) == ThemeMode.dark
+                              ? Colors.black
+                              : Colors.orange.shade800,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
+
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Get.to(const AddTodoPage(), transition: Transition.fadeIn);
@@ -465,36 +415,72 @@ class _TodoListPageState extends ConsumerState<TodoListPage> {
       body: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: TextField(
-              decoration: InputDecoration(
-                hintText: "Search tasks...",
-                prefixIcon: const Icon(Icons.search),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 0,
-                ),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeInOut,
+              decoration: BoxDecoration(
+                color: Theme.of(context).cardColor,
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.06),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
               ),
-              onChanged: (value) {
-                setState(() {
-                  _searchQuery = value.trim();
-                });
-              },
+              child: TextField(
+                style: Theme.of(context).textTheme.bodyMedium,
+                decoration: InputDecoration(
+                  hintText: loc.searchTasks,
+                  hintStyle: TextStyle(
+                    color: Theme.of(context).hintColor.withOpacity(0.7),
+                    fontWeight: FontWeight.w400,
+                  ),
+                  prefixIcon: AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 300),
+                    child: _searchQuery.isEmpty
+                        ? Icon(
+                            FontAwesomeIcons.search,
+                            key: const ValueKey('search_icon'),
+                            color: Theme.of(context).colorScheme.primary,
+                            size: 24,
+                          )
+                        : Icon(
+                            FontAwesomeIcons.search,
+                            key: const ValueKey('search_icon_active'),
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.primary.withOpacity(0.7),
+                            size: 24,
+                          ),
+                  ),
+
+                  border: InputBorder.none,
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 14,
+                  ),
+                ),
+                onChanged: (value) {
+                  setState(() {
+                    _searchQuery = value.trim();
+                  });
+                },
+              ),
             ),
           ),
+
           Expanded(
             child: Builder(
               builder: (_) {
                 final activeTodos = filteredTodos();
                 if (activeTodos.isEmpty) {
                   if (_searchQuery.isNotEmpty) {
-                    // 📌 فقط متن برای حالت بدون نتیجه جستجو
                     return Center(
                       child: Text(
-                        "No results found for '$_searchQuery'",
+                        loc.noResultsFound(_searchQuery),
                         style: theme.textTheme.titleMedium?.copyWith(
                           color: theme.colorScheme.onSurface.withOpacity(0.6),
                         ),
@@ -502,7 +488,6 @@ class _TodoListPageState extends ConsumerState<TodoListPage> {
                       ),
                     );
                   } else {
-                    // 📌 تصویر و متن برای حالت بدون تسک فعال
                     return Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -517,6 +502,8 @@ class _TodoListPageState extends ConsumerState<TodoListPage> {
                     );
                   }
                 }
+
+                // ... ادامه لیست تسک‌ها بدون تغییر متن استاتیک
 
                 return AnimationLimiter(
                   child: ListView.separated(
@@ -553,20 +540,20 @@ class _TodoListPageState extends ConsumerState<TodoListPage> {
                                 return await showDialog<bool>(
                                   context: context,
                                   builder: (context) => AlertDialog(
-                                    title: const Text("Delete Task"),
+                                    title: Text(loc.deleteTask),
                                     content: Text(
-                                      "Are you sure you want to delete '${t.title}'?",
+                                      loc.areYouSureDelete(t.title),
                                     ),
                                     actions: [
                                       TextButton(
                                         onPressed: () =>
                                             Navigator.of(context).pop(false),
-                                        child: const Text("No"),
+                                        child: Text(loc.close),
                                       ),
                                       ElevatedButton(
                                         onPressed: () =>
                                             Navigator.of(context).pop(true),
-                                        child: const Text("Yes, Delete"),
+                                        child: Text(loc.deleteTask),
                                       ),
                                     ],
                                   ),
@@ -577,8 +564,8 @@ class _TodoListPageState extends ConsumerState<TodoListPage> {
                                     .read(todoListProvider.notifier)
                                     .remove(t.id);
                                 Get.snackbar(
-                                  "Deleted",
-                                  "Task '${t.title}' deleted",
+                                  loc.deleted,
+                                  loc.taskDeleted(t.title),
                                   snackPosition: SnackPosition.BOTTOM,
                                   backgroundColor: Colors.red,
                                   colorText: Colors.white,
@@ -606,33 +593,41 @@ class _TodoListPageState extends ConsumerState<TodoListPage> {
                                         value: t.isDone,
                                         onChanged: (value) async {
                                           if (value == true) {
-                                            final confirmed = await showDialog<bool>(
-                                              context: context,
-                                              builder: (context) => AlertDialog(
-                                                title: const Text(
-                                                  "Mark as Done",
-                                                ),
-                                                content: Text(
-                                                  "Are you sure you want to mark '${t.title}' as done?",
-                                                ),
-                                                actions: [
-                                                  TextButton(
-                                                    onPressed: () =>
-                                                        Navigator.of(
-                                                          context,
-                                                        ).pop(false),
-                                                    child: const Text("No"),
-                                                  ),
-                                                  ElevatedButton(
-                                                    onPressed: () =>
-                                                        Navigator.of(
-                                                          context,
-                                                        ).pop(true),
-                                                    child: const Text("Yes"),
-                                                  ),
-                                                ],
-                                              ),
-                                            );
+                                            final confirmed =
+                                                await showDialog<bool>(
+                                                  context: context,
+                                                  builder: (context) =>
+                                                      AlertDialog(
+                                                        title: Text(
+                                                          loc.markAsDone,
+                                                        ),
+                                                        content: Text(
+                                                          loc.areYouSureMarkDone(
+                                                            t.title,
+                                                          ),
+                                                        ),
+                                                        actions: [
+                                                          TextButton(
+                                                            onPressed: () =>
+                                                                Navigator.of(
+                                                                  context,
+                                                                ).pop(false),
+                                                            child: Text(
+                                                              loc.close,
+                                                            ),
+                                                          ),
+                                                          ElevatedButton(
+                                                            onPressed: () =>
+                                                                Navigator.of(
+                                                                  context,
+                                                                ).pop(true),
+                                                            child: Text(
+                                                              loc.done,
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                );
 
                                             if (confirmed == true) {
                                               ref
@@ -641,8 +636,8 @@ class _TodoListPageState extends ConsumerState<TodoListPage> {
                                                   )
                                                   .toggle(t.id);
                                               Get.snackbar(
-                                                "Done",
-                                                "Task '${t.title}' completed!",
+                                                loc.done,
+                                                loc.taskCompleted(t.title),
                                                 snackPosition:
                                                     SnackPosition.BOTTOM,
                                                 backgroundColor: Colors.green,
@@ -681,7 +676,6 @@ class _TodoListPageState extends ConsumerState<TodoListPage> {
                                             maxLines: 4,
                                             overflow: TextOverflow.ellipsis,
                                           ),
-                                        // نمایش فقط روزهای باقی‌مانده به جای نوار پیشرفت
                                         if (t.dueDate != null)
                                           Padding(
                                             padding: const EdgeInsets.only(
@@ -693,7 +687,7 @@ class _TodoListPageState extends ConsumerState<TodoListPage> {
                                     ),
                                     trailing: Chip(
                                       label: Text(
-                                        difficultyText(t.difficulty),
+                                        difficultyText(t.difficulty, context),
                                         style: const TextStyle(
                                           color: Colors.white,
                                           fontWeight: FontWeight.w600,
@@ -727,6 +721,29 @@ class _TodoListPageState extends ConsumerState<TodoListPage> {
         ],
       ),
     );
+  }
+
+  List<Widget> _buildScreens() {
+    return [_todoListScreen(), const DoneTodoListPage()];
+  }
+
+  List<PersistentBottomNavBarItem> _navBarsItems() {
+    final theme = Theme.of(context);
+    final loc = AppLocalizations.of(context)!;
+    return [
+      PersistentBottomNavBarItem(
+        icon: const FaIcon(FontAwesomeIcons.house, size: 26),
+        title: loc.home,
+        activeColorPrimary: theme.colorScheme.primary,
+        inactiveColorPrimary: theme.colorScheme.onSurface.withOpacity(0.6),
+      ),
+      PersistentBottomNavBarItem(
+        icon: const FaIcon(FontAwesomeIcons.check, size: 26),
+        title: loc.completed,
+        activeColorPrimary: theme.colorScheme.primary,
+        inactiveColorPrimary: theme.colorScheme.onSurface.withOpacity(0.6),
+      ),
+    ];
   }
 
   @override

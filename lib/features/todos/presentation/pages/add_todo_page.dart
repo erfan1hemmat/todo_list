@@ -4,6 +4,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:todo_list/features/todos/domain/entities/todo.dart';
 import 'package:todo_list/features/todos/presentation/providers/todo_notifier.dart';
+import 'package:todo_list/l10n/app_localizations.dart';
 
 class AddTodoPage extends ConsumerStatefulWidget {
   const AddTodoPage({super.key});
@@ -17,7 +18,6 @@ class _AddTodoPageState extends ConsumerState<AddTodoPage> {
   final _titleController = TextEditingController();
   final _descController = TextEditingController();
   DateTime? _selectedDateTime;
-  DateTime? _reminderTime;
   TodoDifficulty _selectedDifficulty = TodoDifficulty.medium;
 
   @override
@@ -53,34 +53,11 @@ class _AddTodoPageState extends ConsumerState<AddTodoPage> {
     });
   }
 
-  void _pickReminder() async {
-    final date = await showDatePicker(
-      context: context,
-      firstDate: DateTime.now(),
-      lastDate: DateTime(2100),
-      initialDate: DateTime.now(),
-    );
-    if (date == null) return;
-
-    final time = await showTimePicker(
-      context: context,
-      initialTime: TimeOfDay.now(),
-    );
-    if (time == null) return;
-
-    setState(() {
-      _reminderTime = DateTime(
-        date.year,
-        date.month,
-        date.day,
-        time.hour,
-        time.minute,
-      );
-    });
-  }
-
   Future<void> _saveTodo() async {
+    final loc = AppLocalizations.of(context)!;
+
     if (!_formKey.currentState!.validate()) return;
+
     final newTodo = Todo(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       title: _titleController.text,
@@ -89,22 +66,18 @@ class _AddTodoPageState extends ConsumerState<AddTodoPage> {
           : null,
       dueDate: _selectedDateTime,
       difficulty: _selectedDifficulty,
-      createdAt: DateTime.now(), // ⬅️ مهم
+      createdAt: DateTime.now(),
     );
 
     try {
       await ref.read(todoListProvider.notifier).add(newTodo);
 
-      // if (_reminderTime != null) {
-      //   await ReminderService.scheduleReminder(newTodo);
-      // }
-
       if (!mounted) return;
       Navigator.pop(context);
 
       Get.snackbar(
-        "Success",
-        "Task «${newTodo.title}» added",
+        loc.success,
+        loc.taskAdded(newTodo.title),
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.green,
         colorText: Colors.white,
@@ -114,8 +87,8 @@ class _AddTodoPageState extends ConsumerState<AddTodoPage> {
       );
     } catch (e) {
       Get.snackbar(
-        "Error",
-        "Save failed: $e",
+        loc.error,
+        loc.saveFailed(e.toString()),
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.red,
         colorText: Colors.white,
@@ -126,24 +99,25 @@ class _AddTodoPageState extends ConsumerState<AddTodoPage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final loc = AppLocalizations.of(context)!;
 
     return Scaffold(
-      appBar: AppBar(title: const Text("Add New Task"), elevation: 0),
+      appBar: AppBar(title: Text(loc.addNewTask), elevation: 0),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Form(
           key: _formKey,
           child: Column(
             children: [
-              _buildTitleField(theme),
+              _buildTitleField(theme, loc),
               const SizedBox(height: 20),
-              _buildDescriptionField(theme),
+              _buildDescriptionField(theme, loc),
               const SizedBox(height: 20),
-              _buildDateTimeReminder(theme),
+              _buildDateTimePicker(theme, loc),
               const SizedBox(height: 20),
-              _buildDifficulty(theme),
+              _buildDifficulty(theme, loc),
               const SizedBox(height: 30),
-              _buildSaveButton(theme),
+              _buildSaveButton(theme, loc),
             ],
           ),
         ),
@@ -151,7 +125,7 @@ class _AddTodoPageState extends ConsumerState<AddTodoPage> {
     );
   }
 
-  Widget _buildTitleField(ThemeData theme) {
+  Widget _buildTitleField(ThemeData theme, AppLocalizations loc) {
     return Card(
       color: theme.cardColor,
       elevation: 1.5,
@@ -161,7 +135,7 @@ class _AddTodoPageState extends ConsumerState<AddTodoPage> {
         child: TextFormField(
           controller: _titleController,
           decoration: InputDecoration(
-            hintText: "Enter task title...",
+            hintText: loc.enterTaskTitle,
             border: InputBorder.none,
             prefixIcon: Icon(
               FontAwesomeIcons.heading,
@@ -169,13 +143,13 @@ class _AddTodoPageState extends ConsumerState<AddTodoPage> {
             ),
           ),
           style: theme.textTheme.bodyLarge,
-          validator: (v) => v == null || v.isEmpty ? "Title is required" : null,
+          validator: (v) => v == null || v.isEmpty ? loc.titleRequired : null,
         ),
       ),
     );
   }
 
-  Widget _buildDescriptionField(ThemeData theme) {
+  Widget _buildDescriptionField(ThemeData theme, AppLocalizations loc) {
     return Card(
       color: theme.cardColor,
       elevation: 1.5,
@@ -185,7 +159,7 @@ class _AddTodoPageState extends ConsumerState<AddTodoPage> {
         child: TextFormField(
           controller: _descController,
           decoration: InputDecoration(
-            hintText: "Enter task description...",
+            hintText: loc.enterTaskDescription,
             border: InputBorder.none,
             prefixIcon: Icon(
               FontAwesomeIcons.alignLeft,
@@ -199,35 +173,9 @@ class _AddTodoPageState extends ConsumerState<AddTodoPage> {
     );
   }
 
-  Widget _buildDateTimeReminder(ThemeData theme) {
-    return Column(
-      children: [
-        _buildMinimalCard(
-          icon: FontAwesomeIcons.calendarAlt,
-          title: "Due Date",
-          subtitle: _selectedDateTime == null
-              ? ["Not set"]
-              : [
-                  "${_selectedDateTime!.day}/${_selectedDateTime!.month}/${_selectedDateTime!.year}",
-                  "${_selectedDateTime!.hour.toString().padLeft(2, '0')}:${_selectedDateTime!.minute.toString().padLeft(2, '0')}",
-                ],
-          onTap: _pickDateTime,
-          theme: theme,
-        ),
-        const SizedBox(height: 12),
-      ],
-    );
-  }
-
-  Widget _buildMinimalCard({
-    required IconData icon,
-    required String title,
-    required List<String> subtitle,
-    required VoidCallback onTap,
-    required ThemeData theme,
-  }) {
+  Widget _buildDateTimePicker(ThemeData theme, AppLocalizations loc) {
     return GestureDetector(
-      onTap: onTap,
+      onTap: _pickDateTime,
       child: Card(
         color: theme.cardColor,
         elevation: 1.5,
@@ -235,30 +183,28 @@ class _AddTodoPageState extends ConsumerState<AddTodoPage> {
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              CircleAvatar(
-                radius: 18,
-                backgroundColor: Colors.transparent,
-                child: Icon(icon, color: theme.colorScheme.primary),
+              Icon(
+                FontAwesomeIcons.calendarAlt,
+                color: theme.colorScheme.primary,
               ),
               const SizedBox(width: 12),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    title,
+                    loc.dueDate,
                     style: theme.textTheme.bodyMedium?.copyWith(
                       fontWeight: FontWeight.w600,
                     ),
                   ),
                   const SizedBox(height: 2),
-                  ...subtitle.map(
-                    (line) => Text(
-                      line,
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: Colors.grey.shade700,
-                      ),
+                  Text(
+                    _selectedDateTime == null
+                        ? loc.notSet
+                        : "${_selectedDateTime!.day}/${_selectedDateTime!.month}/${_selectedDateTime!.year} ${_selectedDateTime!.hour}:${_selectedDateTime!.minute.toString().padLeft(2, '0')}",
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: Colors.grey.shade700,
                     ),
                   ),
                 ],
@@ -270,7 +216,7 @@ class _AddTodoPageState extends ConsumerState<AddTodoPage> {
     );
   }
 
-  Widget _buildDifficulty(ThemeData theme) {
+  Widget _buildDifficulty(ThemeData theme, AppLocalizations loc) {
     return Card(
       color: theme.cardColor,
       elevation: 1.5,
@@ -289,7 +235,7 @@ class _AddTodoPageState extends ConsumerState<AddTodoPage> {
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  "Difficulty Level",
+                  loc.difficultyLevel,
                   style: theme.textTheme.labelLarge?.copyWith(
                     fontWeight: FontWeight.w600,
                     color: theme.colorScheme.primary,
@@ -298,38 +244,48 @@ class _AddTodoPageState extends ConsumerState<AddTodoPage> {
               ],
             ),
             const SizedBox(height: 12),
-            _difficultySelector(),
+            Wrap(
+              spacing: 12,
+              children: TodoDifficulty.values.map((difficulty) {
+                final isSelected = _selectedDifficulty == difficulty;
+                final color = _getDifficultyColor(difficulty);
+                return GestureDetector(
+                  onTap: () => setState(() => _selectedDifficulty = difficulty),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 10,
+                    ),
+                    decoration: BoxDecoration(
+                      color: isSelected ? color : Colors.grey.shade200,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      _difficultyText(difficulty, loc),
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: isSelected ? Colors.white : Colors.black87,
+                      ),
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _difficultySelector() {
-    return Wrap(
-      spacing: 12,
-      children: TodoDifficulty.values.map((difficulty) {
-        final isSelected = _selectedDifficulty == difficulty;
-        final color = _getDifficultyColor(difficulty);
-        return GestureDetector(
-          onTap: () => setState(() => _selectedDifficulty = difficulty),
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-            decoration: BoxDecoration(
-              color: isSelected ? color : Colors.grey.shade200,
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Text(
-              difficulty.name.toUpperCase(),
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: isSelected ? Colors.white : Colors.black87,
-              ),
-            ),
-          ),
-        );
-      }).toList(),
-    );
+  String _difficultyText(TodoDifficulty difficulty, AppLocalizations loc) {
+    switch (difficulty) {
+      case TodoDifficulty.easy:
+        return loc.easy;
+      case TodoDifficulty.medium:
+        return loc.medium;
+      case TodoDifficulty.hard:
+        return loc.hard;
+    }
   }
 
   Color _getDifficultyColor(TodoDifficulty difficulty) {
@@ -343,15 +299,15 @@ class _AddTodoPageState extends ConsumerState<AddTodoPage> {
     }
   }
 
-  Widget _buildSaveButton(ThemeData theme) {
+  Widget _buildSaveButton(ThemeData theme, AppLocalizations loc) {
     return SizedBox(
       width: double.infinity,
       height: 50,
       child: ElevatedButton.icon(
         icon: const Icon(FontAwesomeIcons.solidSave, size: 18),
-        label: const Text(
-          "Save Task",
-          style: TextStyle(fontWeight: FontWeight.bold),
+        label: Text(
+          loc.saveTask,
+          style: const TextStyle(fontWeight: FontWeight.bold),
         ),
         onPressed: _saveTodo,
         style: ElevatedButton.styleFrom(

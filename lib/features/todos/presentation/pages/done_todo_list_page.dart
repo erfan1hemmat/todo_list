@@ -4,6 +4,7 @@ import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:get/get.dart';
 import 'package:todo_list/features/todos/domain/entities/todo.dart';
 import 'package:todo_list/features/todos/presentation/providers/todo_notifier.dart';
+import 'package:todo_list/l10n/app_localizations.dart';
 
 class DoneTodoListPage extends ConsumerStatefulWidget {
   const DoneTodoListPage({super.key});
@@ -14,14 +15,15 @@ class DoneTodoListPage extends ConsumerStatefulWidget {
 }
 
 class _DoneTodoListPageState extends ConsumerState<DoneTodoListPage> {
-  String difficultyText(TodoDifficulty d) {
+  String difficultyText(TodoDifficulty d, BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
     switch (d) {
       case TodoDifficulty.easy:
-        return "Easy";
+        return loc.easy;
       case TodoDifficulty.medium:
-        return "Medium";
+        return loc.medium;
       case TodoDifficulty.hard:
-        return "Hard";
+        return loc.hard;
     }
   }
 
@@ -37,6 +39,8 @@ class _DoneTodoListPageState extends ConsumerState<DoneTodoListPage> {
   }
 
   void _showTodoDetails(BuildContext context, Todo todo) {
+    final loc = AppLocalizations.of(context)!;
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -94,7 +98,7 @@ class _DoneTodoListPageState extends ConsumerState<DoneTodoListPage> {
                         ),
                         Chip(
                           label: Text(
-                            difficultyText(todo.difficulty),
+                            difficultyText(todo.difficulty, context),
                             style: const TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.w600,
@@ -137,7 +141,7 @@ class _DoneTodoListPageState extends ConsumerState<DoneTodoListPage> {
                     else
                       Center(
                         child: Text(
-                          "No description",
+                          loc.noDescription,
                           style: Theme.of(
                             context,
                           ).textTheme.bodyMedium?.copyWith(color: Colors.grey),
@@ -154,7 +158,7 @@ class _DoneTodoListPageState extends ConsumerState<DoneTodoListPage> {
                           ),
                           const SizedBox(width: 8),
                           Text(
-                            "Due Date: ${_formatDate(todo.dueDate!)}",
+                            "${loc.dueDate}: ${_formatDate(todo.dueDate!)}",
                             style: Theme.of(context).textTheme.bodyMedium,
                           ),
                         ],
@@ -174,9 +178,9 @@ class _DoneTodoListPageState extends ConsumerState<DoneTodoListPage> {
                           ),
                           padding: const EdgeInsets.symmetric(vertical: 16),
                         ),
-                        child: const Text(
-                          "Close",
-                          style: TextStyle(fontSize: 16),
+                        child: Text(
+                          loc.close,
+                          style: const TextStyle(fontSize: 16),
                         ),
                       ),
                     ),
@@ -206,12 +210,13 @@ class _DoneTodoListPageState extends ConsumerState<DoneTodoListPage> {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
     final todos = ref.watch(todoListProvider);
     final todosDone = todos.where((t) => t.isDone).toList();
     final theme = Theme.of(context);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Completed Tasks')),
+      appBar: AppBar(title: Text(loc.completedTasks)),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: todosDone.isEmpty
@@ -219,7 +224,6 @@ class _DoneTodoListPageState extends ConsumerState<DoneTodoListPage> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    // 📌 نمایش تصویر
                     Image.asset(
                       'assets/images/NoCompletedTasks.png',
                       width: 200,
@@ -264,20 +268,18 @@ class _DoneTodoListPageState extends ConsumerState<DoneTodoListPage> {
                               return await showDialog<bool>(
                                 context: context,
                                 builder: (context) => AlertDialog(
-                                  title: const Text("Delete Task"),
-                                  content: Text(
-                                    "Are you sure you want to delete '${t.title}'?",
-                                  ),
+                                  title: Text(loc.deleteTask),
+                                  content: Text(loc.areYouSureDelete(t.title)),
                                   actions: [
                                     TextButton(
                                       onPressed: () =>
                                           Navigator.of(context).pop(false),
-                                      child: const Text("No"),
+                                      child: Text(loc.no),
                                     ),
                                     ElevatedButton(
                                       onPressed: () =>
                                           Navigator.of(context).pop(true),
-                                      child: const Text("Yes, Delete"),
+                                      child: Text(loc.yesDelete),
                                     ),
                                   ],
                                 ),
@@ -286,8 +288,8 @@ class _DoneTodoListPageState extends ConsumerState<DoneTodoListPage> {
                             onDismissed: (direction) {
                               ref.read(todoListProvider.notifier).remove(t.id);
                               Get.snackbar(
-                                "Deleted",
-                                "Task '${t.title}' deleted",
+                                loc.deleted,
+                                loc.taskDeleted(t.title),
                                 snackPosition: SnackPosition.BOTTOM,
                                 backgroundColor: Colors.red,
                                 colorText: Colors.white,
@@ -342,7 +344,7 @@ class _DoneTodoListPageState extends ConsumerState<DoneTodoListPage> {
                                       : null,
                                   trailing: Chip(
                                     label: Text(
-                                      difficultyText(t.difficulty),
+                                      difficultyText(t.difficulty, context),
                                       style: const TextStyle(
                                         color: Colors.white,
                                         fontWeight: FontWeight.w600,
