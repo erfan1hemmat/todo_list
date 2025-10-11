@@ -1,54 +1,40 @@
-# 📝 Todo List App
+# Relaxer 🌿
 
-A clean, modern, and well-structured **Flutter Todo List App** — designed to help users manage their daily tasks efficiently.  
-This app is built using **Clean Architecture**, **Riverpod** for state management, and **Hive** for local storage.
-
----
-
-## 🚀 Features
-
-✨ **Task Management**
-- Add new tasks with:
-  - **Title**
-  - **Description**
-  - **Deadline**
-  - **Difficulty level** (`Easy`, `Medium`, `Hard`)
-- All tasks are stored locally using **Hive** — works completely offline.
-
-🔍 **Search & Filter**
-- Search tasks by **title** or **description**.
-- Filter and sort tasks by **difficulty**.
-- Tasks are automatically grouped and displayed by difficulty (Easy → Medium → Hard).
-
-✅ **Smart Interactions**
-- Each task card shows **days remaining** until its deadline.
-- Tap a card to open a **bottom sheet** for detailed task information.
-- Mark tasks as **completed** with a confirmation dialog.
-- Swipe **right** to delete a task (confirmation included).
-
-🌙 **Dark & Light Themes**
-- Supports both **Dark** and **Light** modes.
-- Automatically adapts to the system theme.
-
-🧭 **Bottom Navigation**
-- Two main sections:
-  1. **Home** – Active tasks
-  2. **Completed** – Finished tasks (with the same interactions and bottom sheet details)
+**Relaxer** is a mobile app for guided breathing exercises and mental relaxation, built with **Flutter**. It helps users reduce stress and calm the mind using soothing breathing techniques and relaxing background music.
 
 ---
 
-## 🧱 Tech Stack
+## 🎯 Features
 
-| Category | Technology |
-|-----------|-------------|
-| **Framework** | Flutter |
-| **Language** | Dart |
-| **State Management** | Riverpod |
-| **Local Database** | Hive |
-| **Architecture** | Clean Code / Clean Architecture |
-| **Data Models** | Dart Classes & Models for structured data handling |
+- **Guided Breathing Cycle:** Follow the **Inhale → Hold → Exhale** rhythm for effective relaxation  
+- **Dynamic Circle Animation:** Visualize your breath with a circle that expands and contracts  
+- **Rotating Pointer:** Indicates the breathing rhythm and timing  
+- **Relaxing Background Music:** Calming tracks like `Rain.mp3` loop to enhance focus and relaxation  
+- **Modern Minimal Design:** Soft and calming colors create a serene user experience  
 
 ---
 
-## 🧩 Project Structure (Clean Architecture)
+## 📸 Preview
 
+*(Add a screenshot of your app here)*  
+
+---
+
+## ⚙️ How It Works
+
+- The app uses an **AnimationController** to manage the breathing cycle  
+- The **center circle** scales smoothly in and out to represent inhale/exhale  
+- A **pointer rotates** around the circle, indicating the timing of each breath  
+- **Background music** loops automatically to help users stay relaxed  
+
+---
+
+## 🛠 Built With
+
+- **Flutter**
+
+---
+
+## 🏷 Hashtags
+
+#Flutter #BreathingApp #Relaxation #MentalHealth #Mindfulness #StressRelief #Meditation #MobileApp
